@@ -35,23 +35,23 @@ public class BatchingService {
     }
 
     @Async
-    public void processEvent(String eventPayload) {
+    public void addEvent(String eventPayload) {
         eventQueue.add(eventPayload);
         currentBatchSize.addAndGet(eventPayload.getBytes().length);
 
         if (currentBatchSize.get() >= MAX_BATCH_SIZE) {
-            flushBatch();
+            flushEvents();
         }
     }
 
     @Scheduled(fixedRate = 5000)
-    public void flushBatchOnSchedule() {
+    public void flushOnSchedule() {
         if (!eventQueue.isEmpty()) {
-            flushBatch();
+            flushEvents();
         }
     }
 
-    private synchronized void flushBatch() {
+    private synchronized void flushEvents() {
         if (eventQueue.isEmpty()) {
             return;
         }
@@ -76,12 +76,12 @@ public class BatchingService {
                     .build();
 
             s3Client.putObject(putObjectRequest, RequestBody.fromString(batchContent));
-            System.out.println("Batch stored in S3: " + fileName);
+            log.info("Batch stored in S3: " + fileName);
 
             // Increment success counter
             meterRegistry.counter("batches.processed.success").increment();
         } catch (Exception e) {
-            System.err.println("Error storing batch in S3: " + e.getMessage());
+            log.error("Error storing batch in S3: " + e.getMessage());
 
             // Increment error counter
             meterRegistry.counter("batches.processed.error").increment();

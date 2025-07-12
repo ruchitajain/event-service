@@ -43,9 +43,10 @@ This project implements a high-throughput backend event receiver service that:
 - AWS CLI configured locally (`~/.aws/credentials`)
 - Docker (for container build/test)
 
+```bash
+./mvnw clean package
+docker build -t event-receiver .
+docker run -e AWS_ACCESS_KEY_ID=... -e AWS_SECRET_ACCESS_KEY=... -p 8080:8080 event-receiver
 
 Request:
-curl -X POST http://localhost:8080/ingest   -H "Content-Type: application/json"   -H "X-Customer-Tier: gold "   -d '{
-"eventTimestamp": "2024-01-11T01:42:50.234200+00:00",
-"body": "what is the capital of India?"
-}'
+curl -X POST http://localhost:8080/ingest   -H "Content-Type: application/json"   -H "X-Customer-Tier: gold"   -d '{"eventTimestamp":"2025-07-10T15:30:00Z", "body":"Test event from curl"}'

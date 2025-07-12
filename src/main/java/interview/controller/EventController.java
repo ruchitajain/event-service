@@ -42,6 +42,7 @@ public class EventController {
     String getHello(){
         return "hello";
     }
+
     @Timed(value = "ingest.request.time", percentiles = {0.95, 0.99}, histogram = true)
     @PostMapping
     public ResponseEntity<?> ingestEvent(@RequestBody String eventPayload, HttpServletRequest request) {
@@ -52,7 +53,7 @@ public class EventController {
             return new ResponseEntity<>("Invalid or missing X-Customer-Tier header", HttpStatus.BAD_REQUEST);
         }
 
-        batchingService.processEvent(eventPayload);
+        batchingService.addEvent(eventPayload);
         return new ResponseEntity<>("Event received successfully", HttpStatus.OK);
     }
 
